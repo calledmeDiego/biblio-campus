@@ -1,0 +1,43 @@
+<header class="page-head">
+  <div class="container py-5">
+    <div class="row align-items-end g-4">
+      <div class="col-lg-6">
+        <p class="eyebrow mb-3">Biblioteca universitaria</p>
+        <h1>Catálogo de Libros</h1>
+        <p class="on-y fs-5 mb-0 mt-2">
+            Explora el catálogo y solicita tu préstamo
+        </p>
+      </div>
+      <div class="col-lg-6">
+        <div class="search-bar" role="search">
+            <label for="q" class="visually-hidden">
+                Buscar por título o autor
+            </label>
+            <input type="search" class="form-control" placeholder="Buscar título o autor" (input)="alEscribir($event)" (keyup.enter)="alBuscar()">
+            <button (click)="alBuscar()" class="btn btn-dark px-4" type="button">
+                Buscar
+            </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="container py-5">
+    <h2 class="fs-6 fw-bold mb-3">Mostrando {{ libros().length }} libro(s)</h2>
+    @if (cargando()) {
+        <div class="text-center py-5">
+            <div class="spinner-border" role="status"></div>
+        </div>
+    }@else {
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+            @for(l of libros(); track l.id) {
+                <div class="col">
+                    <app-libro-card [libro]="l" (prestamoSolicitado)="alSolicitar($event)"></app-libro-card>            
+                </div>
+            } @empty {
+                <p class="muted">No se encontraron libros con estos criterios</p>
+            }
+        </div>
+    }
+</main>

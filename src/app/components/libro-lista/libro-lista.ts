@@ -1,0 +1,59 @@
+import { Component, computed, effect, inject, signal } from '@angular/core';
+import { LibroCard } from '../libro-card/libro-card';
+import { Libro } from '../../models/libro';
+import { LIBROS } from '../../data/libros';
+import { LibroService } from '../../servicios/libro-service';
+
+@Component({
+  selector: 'app-libro-lista',
+  imports: [LibroCard],
+  templateUrl: './libro-lista.html',
+  styleUrl: './libro-lista.css',
+})
+export class LibroLista {
+  private libroService = inject(LibroService);
+  
+  protected libros = signal<Libro[]>([]);
+  protected terminoBusqueda = signal('');
+
+  protected borrador = signal('');
+  protected cargando = signal(true);
+  protected mensaje = signal<string|null>(null);
+
+  /**
+   *
+   */
+  constructor() {
+    effect(() => {
+      this.cargar()
+    })   
+  }
+
+  // PIDE LOS LIBROS AL SERVICIO
+  protected cargar(): void {
+    this.cargando.set(true);
+    this.libroService.listar().subscribe({
+      next: (data) => {
+        this.libros.set(data);
+        this.cargando.set(false);
+      },
+      error: (err) => console.error('Error al cargar', err)
+    })
+  }
+
+  protected alEscribir(evento: Event): void {
+    this.borrador.set((evento.target as HTMLInputElement).value);
+  }
+  protected alBuscar(): void {
+    this.terminoBusqueda.set(this.borrador());
+  }
+
+  protected alSolicitar(libro: Libro): void {
+    // Actualizar las copias disponibles
+    this.libroService.descontarCopia(libro.id).subscribe(() => {
+      this.mensaje.set(`Solicitaste ${libro.title}`);
+      this.cargar();
+    })
+
+  }
+}
