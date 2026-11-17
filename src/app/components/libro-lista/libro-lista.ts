@@ -3,6 +3,7 @@ import { LibroCard } from '../libro-card/libro-card';
 import { Libro } from '../../models/libro';
 import { LIBROS } from '../../data/libros';
 import { LibroService } from '../../servicios/libro-service';
+import { PrestamoService } from '../../servicios/prestamo-service';
 
 @Component({
   selector: 'app-libro-lista',
@@ -12,6 +13,7 @@ import { LibroService } from '../../servicios/libro-service';
 })
 export class LibroLista {
   private libroService = inject(LibroService);
+  private prestamoService = inject(PrestamoService);
   
   protected libros = signal<Libro[]>([]);
   protected terminoBusqueda = signal('');
@@ -32,7 +34,7 @@ export class LibroLista {
   // PIDE LOS LIBROS AL SERVICIO
   protected cargar(): void {
     this.cargando.set(true);
-    this.libroService.listar().subscribe({
+    this.libroService.listar(this.terminoBusqueda()).subscribe({
       next: (data) => {
         this.libros.set(data);
         this.cargando.set(false);
@@ -45,15 +47,15 @@ export class LibroLista {
     this.borrador.set((evento.target as HTMLInputElement).value);
   }
   protected alBuscar(): void {
-    this.terminoBusqueda.set(this.borrador());
+    this.terminoBusqueda.set(this.borrador().trim());
   }
 
   protected alSolicitar(libro: Libro): void {
     // Actualizar las copias disponibles
-    this.libroService.descontarCopia(libro.id).subscribe(() => {
+    this.prestamoService.solicitar(libro).subscribe(() => {
       this.mensaje.set(`Solicitaste ${libro.title}`);
       this.cargar();
-    })
+    });
 
   }
 }
