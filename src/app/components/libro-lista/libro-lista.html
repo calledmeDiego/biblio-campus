@@ -25,19 +25,25 @@
 
 <main class="container py-5">
     <h2 class="fs-6 fw-bold mb-3">Mostrando {{ libros().length }} libro(s)</h2>
-    @if (cargando()) {
-        <div class="text-center py-5">
-            <div class="spinner-border" role="status"></div>
-        </div>
-    }@else {
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
-            @for(l of libros(); track l.id) {
-                <div class="col">
-                    <app-libro-card [libro]="l" (prestamoSolicitado)="alSolicitar($event)"></app-libro-card>            
-                </div>
-            } @empty {
-                <p class="muted">No se encontraron libros con estos criterios</p>
-            }
-        </div>
-    }
+    @if (error()) {
+        <div class="alert" alert-danger role="alert"> No pudimos cargar el catalogo</div>
+    } @else {
+
+        @if (cargando()) {
+            <div class="text-center py-5">
+                <div class="spinner-border" role="status"></div>
+            </div>
+        }@else {
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                @for(l of libros(); track l.id) {
+                    <div class="col">
+                        <app-libro-card [libro]="l" (prestamoSolicitado)="alSolicitar($event)"></app-libro-card>            
+                    </div>
+                } @empty {
+                    <p class="muted">No se encontraron libros con estos criterios</p>
+                }
+            </div>
+        }
+    }     
+
 </main>

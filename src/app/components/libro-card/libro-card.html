@@ -1,6 +1,9 @@
+
 <article class="card book-card h-100">
+
     <div class="cover cv-1" [class.sold]="agotado()" role="img">
-        <span class="cover-letter">{{ libro().title.charAt(0) }}</span>
+        <span class="cover-letter"> 
+            {{ libro().title.charAt(0) }}</span>
         <span class="cover-cat">{{ libro().category }}</span>
     </div>   
     <div class="card-body d-flex flex-column p-4">

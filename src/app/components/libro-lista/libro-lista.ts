@@ -22,6 +22,8 @@ export class LibroLista {
   protected cargando = signal(true);
   protected mensaje = signal<string|null>(null);
 
+  protected error = signal(false);
+
   /**
    *
    */
@@ -34,12 +36,16 @@ export class LibroLista {
   // PIDE LOS LIBROS AL SERVICIO
   protected cargar(): void {
     this.cargando.set(true);
+    this.error.set(false);
     this.libroService.listar(this.terminoBusqueda()).subscribe({
       next: (data) => {
         this.libros.set(data);
         this.cargando.set(false);
       },
-      error: (err) => console.error('Error al cargar', err)
+      error: () => {
+        this.error.set(true);
+        this.cargando.set(false);
+      }
     })
   }
 
