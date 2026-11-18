@@ -3,11 +3,15 @@ import { LibroService } from './libro-service';
 import { Prestamo } from '../models/prestamo';
 import { Libro } from '../models/libro';
 import { Observable, tap } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { API_URL } from '../api';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PrestamoService {
+
+  private http = inject(HttpClient);
   private libroService = inject(LibroService);
   // la unica forma de acceder al arreglo es mediante funciones
   private _prestamos = signal<Prestamo[]>([]);
@@ -15,22 +19,21 @@ export class PrestamoService {
   readonly prestamos = this._prestamos.asReadonly();
   readonly activos = computed(() => this._prestamos().filter((prestamo) => prestamo.estado === 'ACTIVO').length);
 
+  cargarMios(): void {
+    this.http.get<Prestamo[]>(`${API_URL}/prestamos/mios`).subscribe({
+      next: (data) => {
+        this._prestamos.set(data)
+      },
+      error: () => this._prestamos.set([])
+    })
+  }
+
   //Solicitar prestamo
-  solicitar(libro: Libro): Observable<void> {
-    return this.libroService.descontarCopia(libro.id).pipe( 
-      tap(() => 
-      this._prestamos.update((listaPrestamos) => [
-        ...listaPrestamos,
-        {
-          id: Date.now(),
-          libroId: libro.id,
-          usuarioId: 1,
-          fecha: new Date().toLocaleDateString(),
-          estado: 'ACTIVO',
-          libro
-        }
-      ]))
-    )
+  solicitar(libro: Libro): Observable<Prestamo> {
+    return this.http.post<Prestamo>(`${API_URL}/prestamos`, {libroId: libro.id}).
+    pipe(
+      tap((prestamo) => this._prestamos.update((prestamosActuales) => [...prestamosActuales, prestamo]))
+    )    
   }
 
 }

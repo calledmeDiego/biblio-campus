@@ -10,6 +10,5 @@ import { PrestamoService } from '../../servicios/prestamo-service';
 export class Navbar {
   protected prestamoService = inject(PrestamoService);
 
-  
 
 }

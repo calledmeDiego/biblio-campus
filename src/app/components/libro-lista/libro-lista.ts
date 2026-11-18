@@ -4,6 +4,7 @@ import { Libro } from '../../models/libro';
 import { LIBROS } from '../../data/libros';
 import { LibroService } from '../../servicios/libro-service';
 import { PrestamoService } from '../../servicios/prestamo-service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-libro-lista',
@@ -21,6 +22,8 @@ export class LibroLista {
   protected borrador = signal('');
   protected cargando = signal(true);
   protected mensaje = signal<string|null>(null);
+
+  protected aviso = signal<Aviso | null>(null);
 
   protected error = signal(false);
 
@@ -58,10 +61,27 @@ export class LibroLista {
 
   protected alSolicitar(libro: Libro): void {
     // Actualizar las copias disponibles
-    this.prestamoService.solicitar(libro).subscribe(() => {
-      this.mensaje.set(`Solicitaste ${libro.title}`);
-      this.cargar();
+    this.prestamoService.solicitar(libro).subscribe({
+      next: () => {
+        this.aviso.set({
+          tipo: 'ok',
+          texto: `Solicitaste <<${libro.title}>>.` 
+        });
+        this.cargar();
+      },
+      error: (e: HttpErrorResponse) => {
+        this.aviso.set({
+          tipo: 'error',
+          texto: e.status === 409 ? 'Ya no quedan copias de este libro': 'No se pudo registrar el prestamo'
+        })
+      }
     });
 
   }
+}
+
+
+interface Aviso {
+  tipo: 'ok' | 'error';
+  texto: string;
 }

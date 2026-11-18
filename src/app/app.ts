@@ -1,8 +1,9 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { LibroCard } from './components/libro-card/libro-card';
 import { Navbar } from './components/navbar/navbar';
 import { LibroLista } from './components/libro-lista/libro-lista';
+import { PrestamoService } from './servicios/prestamo-service';
 
 @Component({
   selector: 'app-root',
@@ -16,4 +17,7 @@ import { LibroLista } from './components/libro-lista/libro-lista';
 })
 export class App {
   protected readonly title = signal('bibliocampus');
+  constructor() {
+    inject(PrestamoService).cargarMios();
+  }
 }
